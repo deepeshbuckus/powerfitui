@@ -38,9 +38,9 @@ export const StatsCard = ({ title, value, variant, className }: StatsCardProps) 
           </p>
         </div>
         <Badge variant="outline" className={cn("text-xs", variantBadges[variant])}>
-          {variant === "recent" && "New"}
-          {variant === "active" && "Active"}
-          {variant === "failed" && "Alert"}
+          {variant === "recent" && "Recent"}
+          {variant === "active" && "Running"}
+          {variant === "failed" && "Failed"}
         </Badge>
       </div>
     </Card>

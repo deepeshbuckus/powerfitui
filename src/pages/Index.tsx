@@ -13,17 +13,17 @@ const Index = () => {
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatsCard
-            title="Payroll Documents Processed"
+            title="Import in queue"
             value={247}
             variant="recent"
           />
           <StatsCard
-            title="Active HR Templates"
+            title="Import running"
             value={12}
             variant="active"
           />
           <StatsCard
-            title="Processing Errors"
+            title="Import failed"
             value={2}
             variant="failed"
           />
