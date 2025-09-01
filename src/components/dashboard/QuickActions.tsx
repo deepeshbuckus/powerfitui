@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Upload, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const QuickActions = () => {
   return (
@@ -10,9 +11,12 @@ export const QuickActions = () => {
         <Button 
           size="lg" 
           className="h-20 flex-col gap-2 bg-gradient-primary hover:opacity-90 transition-all duration-200 hover:scale-105"
+          asChild
         >
-          <Upload className="h-6 w-6" />
-          <span>Create Import</span>
+          <Link to="/import" className="flex flex-col items-center gap-2">
+            <Upload className="h-6 w-6" />
+            <span>Create Import</span>
+          </Link>
         </Button>
         <Button 
           variant="outline" 
