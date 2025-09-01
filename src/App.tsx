@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { AppSidebar } from "@/components/app-sidebar";
 import Index from "./pages/Index";
 import Import from "./pages/Import";
+import DataRestructuring from "./pages/DataRestructuring";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/import" element={<Import />} />
+                  <Route path="/data-restructuring" element={<DataRestructuring />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

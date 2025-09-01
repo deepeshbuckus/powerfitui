@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Upload as UploadIcon, FileText } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const Import = () => {
@@ -12,6 +12,7 @@ const Import = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -81,6 +82,9 @@ const Import = () => {
         title: "Upload Complete",
         description: `File "${selectedFile.name}" has been uploaded successfully.`,
       });
+      
+      // Navigate to data restructuring page
+      navigate(`/data-restructuring?file=${encodeURIComponent(selectedFile.name)}`);
       setSelectedFile(null);
     } catch (error) {
       setIsUploading(false);
