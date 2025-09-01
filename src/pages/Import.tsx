@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Upload as UploadIcon, FileText } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useFile } from "@/contexts/FileContext";
 
 const Import = () => {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -13,6 +14,7 @@ const Import = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { setUploadedFile, setIsLoading } = useFile();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -46,6 +48,7 @@ const Import = () => {
 
     setIsUploading(true);
     setUploadProgress(0);
+    setIsLoading(true);
 
     try {
       const formData = new FormData();
@@ -61,10 +64,15 @@ const Import = () => {
         }
       });
 
-      const uploadPromise = new Promise((resolve, reject) => {
+      const uploadPromise = new Promise<any>((resolve, reject) => {
         xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(xhr.response);
+            try {
+              const response = JSON.parse(xhr.response);
+              resolve(response);
+            } catch (e) {
+              resolve(xhr.response);
+            }
           } else {
             reject(new Error(`Upload failed with status: ${xhr.status}`));
           }
@@ -75,19 +83,30 @@ const Import = () => {
       xhr.open('POST', `${import.meta.env.VITE_API_BASE_URL || 'https://localhost:7249'}/api/FileUpload/upload`);
       xhr.send(formData);
 
-      await uploadPromise;
+      const response = await uploadPromise;
+      
+      // Save upload response to context
+      setUploadedFile({
+        fileName: response.FileName || response.Name,
+        originalName: selectedFile.name,
+        filePath: response.filePath,
+        fileSize: response.Length || selectedFile.size
+      });
       
       setIsUploading(false);
+      setIsLoading(false);
+      
       toast({
         title: "Upload Complete",
         description: `File "${selectedFile.name}" has been uploaded successfully.`,
       });
       
       // Navigate to data restructuring page
-      navigate(`/data-restructuring?file=${encodeURIComponent(selectedFile.name)}`);
+      navigate('/data-restructuring');
       setSelectedFile(null);
     } catch (error) {
       setIsUploading(false);
+      setIsLoading(false);
       console.error('Upload error:', error);
       toast({
         title: "Upload Failed",
@@ -95,7 +114,7 @@ const Import = () => {
         variant: "destructive",
       });
     }
-  }, [selectedFile, toast]);
+  }, [selectedFile, toast, navigate, setUploadedFile, setIsLoading]);
 
   return (
     <div className="bg-background p-6 min-h-full">

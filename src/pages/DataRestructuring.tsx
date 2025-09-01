@@ -5,15 +5,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Filter, Search } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Filter } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Chatbot } from "@/components/Chatbot";
+import { useFile } from "@/contexts/FileContext";
 import { getFileData, type FileDataResponse } from "@/services/fileData";
 import { useToast } from "@/hooks/use-toast";
 
 const DataRestructuring = () => {
-  const [searchParams] = useSearchParams();
-  const fileName = searchParams.get('file') || 'uploaded file';
+  const navigate = useNavigate();
+  const { uploadedFile, isLoading: contextLoading } = useFile();
   const { toast } = useToast();
   
   const [selectedTemplate, setSelectedTemplate] = useState("Employee Profile");
@@ -23,39 +24,55 @@ const DataRestructuring = () => {
   const [fileData, setFileData] = useState<FileDataResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch file data on component mount
+  // Redirect to import if no uploaded file
   useEffect(() => {
-    const fetchFileData = async () => {
-      if (!fileName || fileName === 'uploaded file') {
+    if (!contextLoading && !uploadedFile) {
+      toast({
+        title: "No File Data",
+        description: "Please upload a file first.",
+        variant: "destructive",
+      });
+      navigate('/import');
+      return;
+    }
+  }, [uploadedFile, contextLoading, navigate, toast]);
+
+  // Load file data when uploaded file is available
+  useEffect(() => {
+    const loadFileData = async () => {
+      if (!uploadedFile) {
         setLoading(false);
         return;
       }
 
       try {
-        const data = await getFileData(fileName);
+        // Try to fetch processed data from backend
+        const data = await getFileData(uploadedFile.fileName);
         setFileData(data);
       } catch (error) {
-        console.error('Failed to fetch file data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load file data. Using sample data instead.",
-          variant: "destructive",
+        console.error('Failed to fetch processed file data:', error);
+        
+        // Use basic file info from context as fallback
+        setFileData({
+          columns: uploadedFile.columns || ["Column 1", "Column 2", "Column 3"],
+          rows: uploadedFile.rows || [],
+          totalRows: uploadedFile.totalRows || 0,
+          fileName: uploadedFile.originalName
         });
         
-        // Fallback to mock data
-        setFileData({
-          columns: ["employee", "employee_number", "first_name", "middle_name", "last_name", "sin", "street", "city", "province"],
-          rows: mockData,
-          totalRows: mockData.length,
-          fileName: fileName
+        toast({
+          title: "Data Loading",
+          description: "Using basic file info. Processing may still be in progress.",
         });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFileData();
-  }, [fileName, toast]);
+    if (uploadedFile) {
+      loadFileData();
+    }
+  }, [uploadedFile, toast]);
 
   // Mock data - in real app this would come from the backend based on the uploaded file
   const mockData = [
@@ -186,7 +203,7 @@ const DataRestructuring = () => {
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">Data Restructuring</h1>
           <p className="text-muted-foreground">
-            Review and edit the transformed data from "{fileName}". Split, transform or order the data. Click any cell to edit or use column filters to find specific data.
+            Review and edit the transformed data from "{fileData?.fileName || uploadedFile?.originalName || 'uploaded file'}". Split, transform or order the data. Click any cell to edit or use column filters to find specific data.
           </p>
         </div>
 
