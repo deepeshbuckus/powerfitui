@@ -15,22 +15,22 @@ import { cn } from "@/lib/utils";
 const mockData = [
   {
     id: 1,
-    fileName: "financial_report_q3.pdf",
-    templateName: "Financial Template",
+    fileName: "payroll_data_january.xlsx",
+    templateName: "Payroll Template",
     date: "2024-01-15",
     status: "completed"
   },
   {
     id: 2,
-    fileName: "invoice_batch_001.zip",
-    templateName: "Invoice Parser",
+    fileName: "employee_benefits_q1.pdf",
+    templateName: "Benefits Parser",
     date: "2024-01-14", 
     status: "processing"
   },
   {
     id: 3,
-    fileName: "contracts_legal.docx",
-    templateName: "Contract Analyzer",
+    fileName: "tax_documents_2024.zip",
+    templateName: "Tax Document Processor",
     date: "2024-01-13",
     status: "failed"
   }

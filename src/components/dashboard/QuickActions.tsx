@@ -12,7 +12,7 @@ export const QuickActions = () => {
           className="h-20 flex-col gap-2 bg-gradient-primary hover:opacity-90 transition-all duration-200 hover:scale-105"
         >
           <Upload className="h-6 w-6" />
-          <span>Create Import</span>
+          <span>Process Payroll Documents</span>
         </Button>
         <Button 
           variant="outline" 
@@ -20,7 +20,7 @@ export const QuickActions = () => {
           className="h-20 flex-col gap-2 border-2 hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 hover:scale-105"
         >
           <FileText className="h-6 w-6" />
-          <span>New Template</span>
+          <span>HR Document Template</span>
         </Button>
       </div>
     </Card>

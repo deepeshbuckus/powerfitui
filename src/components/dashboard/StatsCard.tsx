@@ -10,9 +10,9 @@ interface StatsCardProps {
 }
 
 const variantStyles = {
-  recent: "border-l-4 border-l-primary",
-  active: "border-l-4 border-l-success",
-  failed: "border-l-4 border-l-destructive"
+  recent: "border-l-4 border-l-primary bg-primary-light/30",
+  active: "border-l-4 border-l-success bg-success-light/30",
+  failed: "border-l-4 border-l-destructive bg-destructive/5"
 };
 
 const variantBadges = {

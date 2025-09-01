@@ -14,7 +14,7 @@ export const Header = () => {
             <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">U2I</span>
             </div>
-            <h1 className="text-xl font-bold">Unstructured to Insight</h1>
+            <h1 className="text-xl font-bold text-primary">PayrollFit Analytics</h1>
           </div>
         </div>
 
