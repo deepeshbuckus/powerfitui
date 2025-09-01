@@ -9,7 +9,6 @@ import { ArrowLeft, Filter } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Chatbot } from "@/components/Chatbot";
 import { useFile } from "@/contexts/FileContext";
-import { getFileData, type FileDataResponse } from "@/services/fileData";
 import { transformFile, type TransformResultDto } from "@/services/transform";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,7 +21,6 @@ const DataRestructuring = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [fileData, setFileData] = useState<FileDataResponse | null>(null);
   const [transformData, setTransformData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,29 +46,18 @@ const DataRestructuring = () => {
       }
 
       try {
-        // Try to fetch processed data from backend
-        const data = await getFileData(uploadedFile.fileName);
-        setFileData(data);
-
         // Call transform API to get JSON payload
         const transformResult = await transformFile(uploadedFile.fileName);
         if (transformResult.jsonPayload) {
           setTransformData(JSON.parse(transformResult.jsonPayload));
         }
       } catch (error) {
-        console.error('Failed to fetch processed file data:', error);
-        
-        // Use basic file info from context as fallback
-        setFileData({
-          columns: uploadedFile.columns || ["Column 1", "Column 2", "Column 3"],
-          rows: uploadedFile.rows || [],
-          totalRows: uploadedFile.totalRows || 0,
-          fileName: uploadedFile.originalName
-        });
+        console.error('Failed to transform file data:', error);
         
         toast({
-          title: "Data Loading",
-          description: "Using basic file info. Processing may still be in progress.",
+          title: "Transform Failed", 
+          description: "Could not transform file data. Please try again.",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -159,7 +146,7 @@ const DataRestructuring = () => {
   ];
 
   const handleSelectAll = (checked: boolean) => {
-    const rows = fileData?.rows || mockData;
+    const rows = transformData?.rows || mockData;
     if (checked) {
       setSelectedRows(rows.map((_, index) => index.toString()));
     } else {
@@ -175,9 +162,9 @@ const DataRestructuring = () => {
     }
   };
 
-  // Use real data if available, fallback to mock data
-  const displayData = fileData?.rows || mockData;
-  const displayColumns = fileData?.columns || columns.map(col => col.key);
+  // Use transform data if available, fallback to mock data
+  const displayData = transformData?.rows || mockData;
+  const displayColumns = transformData?.columns || columns.map(col => col.key);
 
   if (loading) {
     return (
@@ -211,7 +198,7 @@ const DataRestructuring = () => {
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">Data Restructuring</h1>
           <p className="text-muted-foreground">
-            Review and edit the transformed data from "{fileData?.fileName || uploadedFile?.originalName || 'uploaded file'}". Split, transform or order the data. Click any cell to edit or use column filters to find specific data.
+            Review and edit the transformed data from "{uploadedFile?.originalName || 'uploaded file'}". Split, transform or order the data. Click any cell to edit or use column filters to find specific data.
           </p>
         </div>
 
