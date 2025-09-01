@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,15 +7,55 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Filter, Search } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Chatbot } from "@/components/Chatbot";
+import { getFileData, type FileDataResponse } from "@/services/fileData";
+import { useToast } from "@/hooks/use-toast";
 
 const DataRestructuring = () => {
   const [searchParams] = useSearchParams();
   const fileName = searchParams.get('file') || 'uploaded file';
+  const { toast } = useToast();
   
   const [selectedTemplate, setSelectedTemplate] = useState("Employee Profile");
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [fileData, setFileData] = useState<FileDataResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch file data on component mount
+  useEffect(() => {
+    const fetchFileData = async () => {
+      if (!fileName || fileName === 'uploaded file') {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getFileData(fileName);
+        setFileData(data);
+      } catch (error) {
+        console.error('Failed to fetch file data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load file data. Using sample data instead.",
+          variant: "destructive",
+        });
+        
+        // Fallback to mock data
+        setFileData({
+          columns: ["employee", "employee_number", "first_name", "middle_name", "last_name", "sin", "street", "city", "province"],
+          rows: mockData,
+          totalRows: mockData.length,
+          fileName: fileName
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFileData();
+  }, [fileName, toast]);
 
   // Mock data - in real app this would come from the backend based on the uploaded file
   const mockData = [
@@ -94,8 +134,9 @@ const DataRestructuring = () => {
   ];
 
   const handleSelectAll = (checked: boolean) => {
+    const rows = fileData?.rows || mockData;
     if (checked) {
-      setSelectedRows(mockData.map(row => row.id));
+      setSelectedRows(rows.map((_, index) => index.toString()));
     } else {
       setSelectedRows([]);
     }
@@ -108,6 +149,20 @@ const DataRestructuring = () => {
       setSelectedRows(selectedRows.filter(id => id !== rowId));
     }
   };
+
+  // Use real data if available, fallback to mock data
+  const displayData = fileData?.rows || mockData;
+  const displayColumns = fileData?.columns || columns.map(col => col.key);
+
+  if (loading) {
+    return (
+      <div className="bg-background p-6 min-h-full">
+        <div className="max-w-7xl mx-auto flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background p-6 min-h-full">
@@ -173,15 +228,15 @@ const DataRestructuring = () => {
                   <TableRow>
                     <TableHead className="w-12">
                       <Checkbox 
-                        checked={selectedRows.length === mockData.length}
+                        checked={selectedRows.length === displayData.length}
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
                     <TableHead>Select</TableHead>
-                    {columns.map((column) => (
-                      <TableHead key={column.key} className="min-w-[120px]">
+                    {displayColumns.map((column) => (
+                      <TableHead key={column} className="min-w-[120px]">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs">{column.label}</span>
+                          <span className="text-xs">{column}</span>
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                             <Filter className="h-3 w-3" />
                           </Button>
@@ -191,18 +246,26 @@ const DataRestructuring = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockData.map((row) => (
-                    <TableRow key={row.id}>
+                  {displayData.map((row, index) => (
+                    <TableRow key={index}>
                       <TableCell>
                         <Checkbox
-                          checked={selectedRows.includes(row.id)}
-                          onCheckedChange={(checked) => handleRowSelect(row.id, !!checked)}
+                          checked={selectedRows.includes(index.toString())}
+                          onCheckedChange={(checked) => handleRowSelect(index.toString(), !!checked)}
                         />
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{row.employee}</TableCell>
-                      {columns.map((column) => (
-                        <TableCell key={column.key} className="text-xs">
-                          {row[column.key as keyof typeof row]}
+                      <TableCell className="text-xs text-muted-foreground">
+                        {typeof row === 'object' && row !== null ? 
+                          (row['employee'] || `Row ${index + 1}`) : 
+                          `Row ${index + 1}`
+                        }
+                      </TableCell>
+                      {displayColumns.map((column) => (
+                        <TableCell key={column} className="text-xs">
+                          {typeof row === 'object' && row !== null ? 
+                            (row[column] || '') : 
+                            ''
+                          }
                         </TableCell>
                       ))}
                     </TableRow>
@@ -214,7 +277,7 @@ const DataRestructuring = () => {
             {/* Pagination */}
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <span>1 - 5 of 5</span>
+                <span>1 - {Math.min(parseInt(itemsPerPage), displayData.length)} of {displayData.length}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span>Items per page:</span>
@@ -233,6 +296,9 @@ const DataRestructuring = () => {
             </div>
           </div>
         </Card>
+
+        {/* Chatbot */}
+        <Chatbot />
       </div>
     </div>
   );
