@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Chatbot } from "@/components/Chatbot";
 import { useFile } from "@/contexts/FileContext";
 import { getFileData, type FileDataResponse } from "@/services/fileData";
+import { transformFile, type TransformResultDto } from "@/services/transform";
 import { useToast } from "@/hooks/use-toast";
 
 const DataRestructuring = () => {
@@ -22,6 +23,7 @@ const DataRestructuring = () => {
   const [itemsPerPage, setItemsPerPage] = useState("10");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [fileData, setFileData] = useState<FileDataResponse | null>(null);
+  const [transformData, setTransformData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   // Redirect to import if no uploaded file
@@ -49,6 +51,12 @@ const DataRestructuring = () => {
         // Try to fetch processed data from backend
         const data = await getFileData(uploadedFile.fileName);
         setFileData(data);
+
+        // Call transform API to get JSON payload
+        const transformResult = await transformFile(uploadedFile.fileName);
+        if (transformResult.jsonPayload) {
+          setTransformData(JSON.parse(transformResult.jsonPayload));
+        }
       } catch (error) {
         console.error('Failed to fetch processed file data:', error);
         
