@@ -3,8 +3,11 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ImportHistory } from "@/components/dashboard/ImportHistory";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { useTemplates } from "@/hooks/useTemplates";
 
 const Index = () => {
+  const { data: templates, isLoading: templatesLoading } = useTemplates();
+  
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -19,7 +22,7 @@ const Index = () => {
           />
           <StatsCard
             title="Active Templates"
-            value={6}
+            value={templatesLoading ? 0 : templates?.length || 0}
             variant="active"
           />
           <StatsCard
