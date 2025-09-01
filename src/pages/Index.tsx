@@ -1,4 +1,3 @@
-import { Header } from "@/components/layout/Header";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ImportHistory } from "@/components/dashboard/ImportHistory";
@@ -11,10 +10,8 @@ const Index = () => {
   const { data: importHistory, isLoading: importHistoryLoading } = useImportHistory();
   
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-6 py-8 space-y-8">
+    <div className="bg-background p-6">
+      <div className="space-y-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatsCard
@@ -42,7 +39,7 @@ const Index = () => {
 
         {/* Recent Activity */}
         <RecentActivity />
-      </main>
+      </div>
     </div>
   );
 };
