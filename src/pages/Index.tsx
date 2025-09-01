@@ -4,9 +4,11 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ImportHistory } from "@/components/dashboard/ImportHistory";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { useTemplates } from "@/hooks/useTemplates";
+import { useImportHistory } from "@/hooks/useImportHistory";
 
 const Index = () => {
   const { data: templates, isLoading: templatesLoading } = useTemplates();
+  const { data: importHistory, isLoading: importHistoryLoading } = useImportHistory();
   
   return (
     <div className="min-h-screen bg-background">
@@ -17,7 +19,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatsCard
             title="Recent Imports"
-            value={35}
+            value={importHistoryLoading ? 0 : importHistory?.length || 0}
             variant="recent"
           />
           <StatsCard
