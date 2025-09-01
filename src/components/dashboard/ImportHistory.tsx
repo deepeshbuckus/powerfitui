@@ -37,9 +37,9 @@ const mockData = [
 ];
 
 const statusStyles = {
-  completed: "bg-success/10 text-success border-success/20",
-  processing: "bg-warning/10 text-warning border-warning/20",
-  failed: "bg-destructive/10 text-destructive border-destructive/20"
+  completed: "bg-primary/10 text-primary border-primary/20",
+  processing: "bg-primary/15 text-primary border-primary/25",
+  failed: "bg-primary/20 text-primary border-primary/30"
 };
 
 export const ImportHistory = () => {

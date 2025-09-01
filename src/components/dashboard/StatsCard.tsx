@@ -11,14 +11,14 @@ interface StatsCardProps {
 
 const variantStyles = {
   recent: "border-l-4 border-l-primary bg-primary-light/30",
-  active: "border-l-4 border-l-success bg-success-light/30",
-  failed: "border-l-4 border-l-destructive bg-destructive/5"
+  active: "border-l-4 border-l-primary bg-primary-light/20",
+  failed: "border-l-4 border-l-primary bg-primary-light/10"
 };
 
 const variantBadges = {
   recent: "bg-primary/10 text-primary border-primary/20",
-  active: "bg-success/10 text-success border-success/20", 
-  failed: "bg-destructive/10 text-destructive border-destructive/20"
+  active: "bg-primary/15 text-primary border-primary/25", 
+  failed: "bg-primary/20 text-primary border-primary/30"
 };
 
 export const StatsCard = ({ title, value, variant, className }: StatsCardProps) => {
@@ -39,8 +39,8 @@ export const StatsCard = ({ title, value, variant, className }: StatsCardProps) 
         </div>
         <Badge variant="outline" className={cn("text-xs", variantBadges[variant])}>
           {variant === "recent" && "New"}
-          {variant === "active" && "Running"}
-          {variant === "failed" && "Error"}
+          {variant === "active" && "Active"}
+          {variant === "failed" && "Alert"}
         </Badge>
       </div>
     </Card>
