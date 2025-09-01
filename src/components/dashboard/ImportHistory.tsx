@@ -9,32 +9,10 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { MoreHorizontal, Filter, Eye } from "lucide-react";
+import { MoreHorizontal, Filter, Eye, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const mockData = [
-  {
-    id: 1,
-    fileName: "payroll_data_january.xlsx",
-    templateName: "Payroll Template",
-    date: "2024-01-15",
-    status: "completed"
-  },
-  {
-    id: 2,
-    fileName: "employee_benefits_q1.pdf",
-    templateName: "Benefits Parser",
-    date: "2024-01-14", 
-    status: "processing"
-  },
-  {
-    id: 3,
-    fileName: "tax_documents_2024.zip",
-    templateName: "Tax Document Processor",
-    date: "2024-01-13",
-    status: "failed"
-  }
-];
+import { useImportHistory } from "@/hooks/useImportHistory";
+import { format } from "date-fns";
 
 const statusStyles = {
   completed: "bg-primary/10 text-primary border-primary/20",
@@ -43,7 +21,31 @@ const statusStyles = {
 };
 
 export const ImportHistory = () => {
-  const hasData = mockData.length > 0;
+  const { data: importHistory, isLoading, error } = useImportHistory();
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading import history...</span>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="p-6">
+        <div className="text-center py-12 text-muted-foreground">
+          <div className="text-lg mb-2">Failed to load import history</div>
+          <p className="text-sm">Please try again later</p>
+        </div>
+      </Card>
+    );
+  }
+
+  const hasData = importHistory && importHistory.length > 0;
 
   return (
     <Card className="p-6">
@@ -78,19 +80,19 @@ export const ImportHistory = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockData.map((item) => (
-                <TableRow key={item.id} className="hover:bg-muted/50">
+              {importHistory?.map((item) => (
+                <TableRow key={item.ImportHistoryId} className="hover:bg-muted/50">
                   <TableCell className="font-medium">
-                    {item.fileName}
+                    {item.FileName}
                   </TableCell>
-                  <TableCell>{item.templateName}</TableCell>
-                  <TableCell>{item.date}</TableCell>
+                  <TableCell>Template ID: {item.TemplateId}</TableCell>
+                  <TableCell>{format(new Date(item.ImportDate), 'yyyy-MM-dd')}</TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
-                      className={cn("capitalize", statusStyles[item.status as keyof typeof statusStyles])}
+                      className={cn("capitalize", statusStyles.completed)}
                     >
-                      {item.status}
+                      Completed
                     </Badge>
                   </TableCell>
                   <TableCell>
