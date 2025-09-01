@@ -46,21 +46,51 @@ const Import = () => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Simulate upload progress
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setIsUploading(false);
-          toast({
-            title: "Upload Complete",
-            description: `File "${selectedFile.name}" has been uploaded successfully.`,
-          });
-          return 100;
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      // Create XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(progress);
         }
-        return prev + 10;
       });
-    }, 300);
+
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.response);
+          } else {
+            reject(new Error(`Upload failed with status: ${xhr.status}`));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Upload failed'));
+      });
+
+      xhr.open('POST', `${import.meta.env.VITE_API_BASE_URL || 'https://localhost:7249'}/api/FileUpload/upload`);
+      xhr.send(formData);
+
+      await uploadPromise;
+      
+      setIsUploading(false);
+      toast({
+        title: "Upload Complete",
+        description: `File "${selectedFile.name}" has been uploaded successfully.`,
+      });
+      setSelectedFile(null);
+    } catch (error) {
+      setIsUploading(false);
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an error uploading your file. Please try again.",
+        variant: "destructive",
+      });
+    }
   }, [selectedFile, toast]);
 
   return (
