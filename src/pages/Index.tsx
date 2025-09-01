@@ -1,12 +1,43 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Header } from "@/components/layout/Header";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { ImportHistory } from "@/components/dashboard/ImportHistory";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="container mx-auto px-6 py-8 space-y-8">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard
+            title="Recent Imports"
+            value={0}
+            variant="recent"
+          />
+          <StatsCard
+            title="Active Templates"
+            value={5}
+            variant="active"
+          />
+          <StatsCard
+            title="Failed Imports"
+            value={0}
+            variant="failed"
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <QuickActions />
+
+        {/* Import History */}
+        <ImportHistory />
+
+        {/* Recent Activity */}
+        <RecentActivity />
+      </main>
     </div>
   );
 };
